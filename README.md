@@ -7,3 +7,5 @@ This is used to get the geocoding for a place on the map
 This is to speed up development process by using an already available component library
 ## radix-icons-svelte inspired by [radix-ui](https://www.radix-ui.com/)
 Icons
+## [prosemirror](https://prosemirror.net/)
+Text editor with built-in editor state and image uploading

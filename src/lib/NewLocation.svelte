@@ -14,7 +14,7 @@
       next: (): typeof currentStage => 'popup',
     },
     popup: {
-      previous: (): typeof currentStage => 'approveLocation',
+      previous: (): typeof currentStage => 'search',
       next: (): typeof currentStage => 'confirmation',
     },
     confirmation: {

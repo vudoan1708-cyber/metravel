@@ -1,6 +1,8 @@
 <script lang="ts">
   import { createEventDispatcher } from 'svelte';
 
+  import { Check, Cross2 } from 'radix-icons-svelte';
+
   import Button from '$lib/components/Button.svelte';
   import Section from '$lib/components/Section.svelte';
 
@@ -21,10 +23,12 @@
 <Section {style}>
   <p>Are you sure you want to save this location?</p>
   <span>
-    <Button disabled={!location} on:click={back}>
-      Back
+    <Button on:click={back}>
+      <Cross2 slot="leftIcon" />
+      No
     </Button>
-    <Button disabled={!location} on:click={saveLocation}>
+    <Button on:click={saveLocation}>
+      <Check slot="leftIcon" />
       Yes
     </Button>
   </span>

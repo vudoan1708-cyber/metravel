@@ -10,7 +10,7 @@
   const markerLocations: Array<{ latlng: LatLngExpression, popup: string }> = [
     {
       latlng: [ 51.513870009926, 7.473969975241 ],
-      popup: '',
+      popup: '<b>Hello</b>',
     }
   ];
 </script>
@@ -38,7 +38,7 @@
 					/>
 				</svg>
         <Popup layer={marker}>
-          {loc.popup}
+          {@html loc.popup}
         </Popup>
       </Marker>
     {/each}

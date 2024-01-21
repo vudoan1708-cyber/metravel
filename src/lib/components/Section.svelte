@@ -21,5 +21,6 @@
     padding: 8px;
     background-color: rgba(0, 0, 0, .5);
     color: rgb(207, 207, 207);
+    border-radius: 4px;
   }
 </style>

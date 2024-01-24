@@ -2,6 +2,7 @@
   import { Button } from '@svelteuidev/core';
 
   export let disabled = false;
+  export let loading = false;
   export let size: 'xs' | 'sm' | 'md' | 'lg' | 'xl' = 'xs';
   export let title = '';
   export let style = '';
@@ -23,6 +24,7 @@
   {title}
   {style}
   {size}
+  {loading}
   on:click>
   <slot name="leftIcon" />
   <slot />

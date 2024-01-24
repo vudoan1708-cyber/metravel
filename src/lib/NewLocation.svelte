@@ -1,7 +1,14 @@
 <script lang="ts">
+  import { createEventDispatcher } from 'svelte';
+
   import Search from './stages/Search.svelte';
   import ApproveLocation from './stages/ApproveLocation.svelte';
   import PopupContent from './stages/PopupContent.svelte';
+
+  export let searchedKeyword: string | null = '';
+  export let searchedLocations: any[] = [];
+
+  const dispatch = createEventDispatcher();
 
   let currentStage: 'search' | 'approveLocation' | 'popup' = 'search';
   const STAGES = {
@@ -19,7 +26,7 @@
     },
   };
 
-  const components = {
+  $: components = {
     search: {
       component: Search,
       props: {
@@ -30,6 +37,8 @@
       component: ApproveLocation,
       props: {
         style: 'pointer-events: auto;',
+        searchedKeyword,
+        results: searchedLocations,
       },
     },
     popup: {
@@ -43,9 +52,11 @@
   // Event Handlers
   const nextStage = () => {
     currentStage = STAGES[currentStage].next();
+    dispatch('stageChange', currentStage);
   };
   const previousStage = () => {
     currentStage = STAGES[currentStage].previous();
+    dispatch('stageChange', currentStage);
   };
 </script>
 
@@ -55,7 +66,8 @@
     this={components[currentStage].component}
     {...components[currentStage].props}
     on:next={nextStage}
-    on:previous={previousStage} />
+    on:previous={previousStage}
+    on:searched />
 </div>
 <!-- </template> -->
 

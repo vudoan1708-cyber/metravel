@@ -8,7 +8,7 @@ export const GET = async () => {
   try {
     all = await journalDatabase.findAll() || [];
   } catch (err: any) {
-    error(404, err?.message);
+    error(500, err?.message);
   }
 
   return json(all);

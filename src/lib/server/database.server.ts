@@ -18,8 +18,9 @@ class JournalDatabase {
       this.model = this._connection.model('journal-entry', JournalSchema);
       this._isConnected = true;
       console.info('Database connected');
-    } catch (err) {
+    } catch (err: any) {
       console.error(err);
+      throw new Error(err.message);
     }
   }
 

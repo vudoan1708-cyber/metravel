@@ -3,11 +3,12 @@
   import 'leaflet/dist/leaflet.css';
 
   import { createEventDispatcher, onDestroy, onMount, tick } from 'svelte';
-  import { env } from '$env/dynamic/public';
+  import { PUBLIC_GEOAPIFY_API_KEY } from '$env/static/public';
 
   export let bounds: L.LatLngBoundsExpression | undefined = undefined;
 	export let view: L.LatLngExpression | undefined = undefined;
 	export let zoom: number | undefined = undefined;
+  export let searchedLocations: any[] = [];
 
   const dispatch = createEventDispatcher();
 
@@ -27,32 +28,10 @@
         e.popup.update();
       });
 
-    const geojsonFeature = [{
-      type: 'Feature',
-      properties: {
-        name: 'Coors Field',
-        amenity: 'Baseball Stadium',
-        popupContent: 'This is where the Rockies play!',
-      },
-      geometry: {
-        type: 'Point',
-        coordinates: [ -104.99404, 39.75621 ],
-      }
-    }];
-
-    L.tileLayer(`https://maps.geoapify.com/v1/tile/osm-carto/{z}/{x}/{y}.png?apiKey=${env.PUBLIC_GEOAPIFY_API_KEY}`, {
+    L.tileLayer(`https://maps.geoapify.com/v1/tile/osm-carto/{z}/{x}/{y}.png?apiKey=${PUBLIC_GEOAPIFY_API_KEY}`, {
       attribution: 'Powered by <a href="https://www.geoapify.com/" target="_blank">Geoapify</a> | © OpenStreetMap <a href="https://www.openstreetmap.org/copyright" target="_blank">contributors</a>',
       maxZoom: 20, id: 'osm-bright'
     }).addTo(map);
-
-    const geojsonMarkerOptions = {
-      radius: 8,
-      fillColor: '#ff7800',
-      color: '#000',
-      weight: 1,
-      opacity: 1,
-      fillOpacity: 0.8,
-    };
   });
 
   onDestroy(() => {
@@ -67,6 +46,10 @@
 			map.setView(view, zoom);
 		}
 	}
+
+  $: if (searchedLocations.length > 0) {
+    map?.setZoom(-3);
+  }
 </script>
 
 <!-- <template> -->

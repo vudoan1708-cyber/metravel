@@ -1,8 +1,12 @@
+import { getAllJournals } from '$lib/utils/apiWrappers';
+
 import type { LatLngExpression } from 'leaflet';
 
 /** @type {import('./$types').PageServerLoad} */
 export async function load({ params }): Promise<{ journalEntry: Array<{ latlng: LatLngExpression, popup: string }> }> {
   // Fetch API to get all saved locations
+	const response = await getAllJournals();
+	console.log('response', response.data);
 	return {
 		journalEntry: [
 			{

@@ -1,11 +1,13 @@
 <script lang="ts">
-	import { onMount, onDestroy } from 'svelte';
+	import { onMount, onDestroy, createEventDispatcher } from 'svelte';
 	import L from 'leaflet';
 
 	export let map: L.Map | undefined;
 	export let width: number;
 	export let height: number;
 	export let latLng: L.LatLngExpression;
+
+	const dispatch = createEventDispatcher();
 
 	let marker: L.Marker | undefined;
 	let markerElement: HTMLElement;
@@ -17,7 +19,9 @@
 				className: 'map-marker',
 				iconSize: L.point(width, height),
 			});
-			marker = L.marker(latLng, { icon }).addTo(map);
+			marker = L.marker(latLng, { icon }).addTo(map).on('click', (e) => {
+				dispatch('select');
+			});
 		}
 	});
 

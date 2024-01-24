@@ -3,7 +3,7 @@
   import ApproveLocation from './stages/ApproveLocation.svelte';
   import PopupContent from './stages/PopupContent.svelte';
 
-  let currentStage: 'search' | 'approveLocation' | 'popup' | 'confirmation' = 'search';
+  let currentStage: 'search' | 'approveLocation' | 'popup' = 'search';
   const STAGES = {
     search: {
       previous: (): typeof currentStage => 'search',
@@ -15,12 +15,8 @@
     },
     popup: {
       previous: (): typeof currentStage => 'search',
-      next: (): typeof currentStage => 'confirmation',
-    },
-    confirmation: {
-      previous: (): typeof currentStage => 'popup',
       next: (): typeof currentStage => 'search',
-    }
+    },
   };
 
   const components = {
@@ -38,12 +34,6 @@
     },
     popup: {
       component: PopupContent,
-      props: {
-        style: 'pointer-events: auto;',
-      },
-    },
-    confirmation: {
-      component: null,
       props: {
         style: 'pointer-events: auto;',
       },

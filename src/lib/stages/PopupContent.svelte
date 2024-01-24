@@ -1,11 +1,8 @@
 <script lang="ts">
   import { createEventDispatcher } from 'svelte';
 
-  import { Textarea } from '@svelteuidev/core';
-
   import Section from "$lib/components/Section.svelte";
   import Button from '$lib/components/Button.svelte';
-  import FileInput from '$lib/components/FileInput.svelte';
 
   import { ArrowLeft, ArrowRight } from 'radix-icons-svelte';
   import TextEditor from '$lib/components/TextEditor.svelte';
@@ -14,19 +11,27 @@
 
   const dispatch = createEventDispatcher();
 
-  let value: string = '';
-  let files: HTMLInputElement
-
   // Event Handlers
   const back = () => {
     dispatch('previous');
   };
+
+  let saving: boolean = false;
   const saveContent = () => {
+    saving = true;
+    const div = document.createElement('div');
+    div.append(...editorDom.content?.childNodes as NodeListOf<ChildNode> || []);
+    console.log('editorDom', editorDom);
     dispatch('next');
   };
 
-  const handleChange = ({ detail }) => {
-
+  let editorDom: { content: HTMLElement | null, isEmpty: boolean } = {
+    content: null,
+    isEmpty: true,
+  };
+  const handleChange = ({ detail }: { detail: { dom: HTMLElement, empty: boolean } }) => {
+    editorDom.content = detail.dom;
+    editorDom.isEmpty = detail.empty;
   };
 </script>
 
@@ -34,12 +39,7 @@
 <Section {style}>
   <label for="story">
     Your story
-    <FileInput
-      id="uploadStory"
-      style="align-self: flex-end;"
-      title="Upload media files"
-      on:change={handleChange} />
-    <TextEditor />
+    <TextEditor on:change={handleChange} />
   </label>
 
   <span>
@@ -47,7 +47,7 @@
       <ArrowLeft slot="leftIcon" />
       Back
     </Button>
-    <Button disabled={!value}>
+    <Button disabled={editorDom.isEmpty} on:click={saveContent}>
       <ArrowRight slot="leftIcon" />
       Next
     </Button>

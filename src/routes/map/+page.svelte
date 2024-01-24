@@ -1,22 +1,17 @@
 <script lang="ts">
-  import { type LatLngExpression } from 'leaflet';
-
   import Leaflet from '$lib/Leaflet.svelte';
   import Marker from '$lib/Marker.svelte';
   import Popup from '$lib/Popup.svelte';
 
   import NewLocation from '$lib/NewLocation.svelte';
 
-  const markerLocations: Array<{ latlng: LatLngExpression, popup: string }> = [
-    {
-      latlng: [ 51.513870009926, 7.473969975241 ],
-      popup: '<b>Hello</b>',
-    }
-  ];
+  export let data;
+
+  const markerLocations = data.journalEntry;
 </script>
 
 <!-- <template> -->
-<div>
+<div class="metravel-map">
   <Leaflet let:map>
     {#each markerLocations as loc}
       <Marker
@@ -47,3 +42,9 @@
   <NewLocation />
 </div>
 <!-- </template> -->
+
+<style>
+  :global(.metravel-map img) {
+    width: 100%;
+  }
+</style>

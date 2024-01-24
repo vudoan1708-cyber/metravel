@@ -2,6 +2,7 @@
   import { createEventDispatcher } from 'svelte';
 
   import { Image } from 'radix-icons-svelte';
+  import { Badge } from '@svelteuidev/core';
 
   export let disabled = false;
   export let style = '';
@@ -10,18 +11,21 @@
 
   const dispatch = createEventDispatcher();
 
-  let files: HTMLInputElement | undefined;
+  let files: FileList | null | undefined;
 
   const onChange = () => {
     if (disabled) return;
-    dispatch('change', files?.files);
-  }
+    dispatch('change', files);
+  };
 </script>
 
 <!-- <template> -->
 <label {style} {title}>
   <slot>
-    <Image slot="leftIcon" />
+    <Image slot="leftIcon" size={22} />
+    {#if files?.length}
+      <Badge style="position: absolute; right: -5px; top: -5px;" size="xs">{files?.length}</Badge>
+    {/if}
   </slot>
   <input
     type="file"
@@ -29,13 +33,14 @@
     multiple
     {id}
     {disabled}
-    bind:this={files}
+    bind:files
     on:change|stopPropagation={onChange} />
 </label>
 <!-- </template> -->
 
 <style>
   label {
+    position: relative;
     display: block;
     cursor: pointer;
   }

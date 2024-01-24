@@ -25,7 +25,11 @@
 
 <!-- <template> -->
 <Section {style}>
-  <TextInput required style="width: 300px;" placeholder="Name of the location" bind:value={location} />
+  <TextInput
+    required style="width: 300px;"
+    placeholder="Name of the location"
+    autofocus
+    bind:value={location} />
   <Button style="align-self: flex-end;" disabled={!location} on:click={search}>
     <MagnifyingGlass slot="leftIcon" />
     Search

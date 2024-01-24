@@ -30,6 +30,7 @@
 	"dependencies": {
 		"@svelteuidev/core": "^0.15.4",
 		"leaflet": "^1.9.4",
+		"mongoose": "^8.1.0",
 		"prosemirror-example-setup": "^1.2.2",
 		"prosemirror-model": "^1.19.4",
 		"prosemirror-schema-basic": "^1.2.2",

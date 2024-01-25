@@ -1,8 +1,12 @@
 <script lang="ts">
   import { createEventDispatcher } from 'svelte';
+  import type { LatLngTuple } from 'leaflet';
 
-  import Section from "$lib/components/Section.svelte";
+  import Section from '$lib/components/Section.svelte';
   import Button from '$lib/components/Button.svelte';
+
+  import { journalEntry } from '$lib/stores';
+  import { createJournal } from '$lib/utils/apiWrappers';
 
   import { ArrowLeft, ArrowRight } from 'radix-icons-svelte';
   import TextEditor from '$lib/components/TextEditor.svelte';
@@ -17,12 +21,22 @@
   };
 
   let saving: boolean = false;
-  const saveContent = () => {
+  const saveContent = async () => {
     saving = true;
-    const div = document.createElement('div');
-    div.append(...editorDom.content?.childNodes as NodeListOf<ChildNode> || []);
-    console.log('editorDom', editorDom);
-    dispatch('next');
+    try {
+      const div = document.createElement('div');
+      div.append(...editorDom.content?.childNodes as NodeListOf<ChildNode> || []);
+      await createJournal({
+        latlng: $journalEntry.latlng as LatLngTuple,
+        popup: div.outerHTML,
+        place_id: $journalEntry.place_id as string,
+      });
+      dispatch('next');
+    } catch (err: any) {
+      alert(err.message);
+    } finally {
+      saving = false;
+    }
   };
 
   let editorDom: { content: HTMLElement | null, isEmpty: boolean } = {
@@ -43,11 +57,11 @@
   </label>
 
   <span>
-    <Button on:click={back}>
+    <Button disabled={saving} on:click={back}>
       <ArrowLeft slot="leftIcon" />
       Back
     </Button>
-    <Button disabled={editorDom.isEmpty} on:click={saveContent}>
+    <Button disabled={editorDom.isEmpty || saving} on:click={saveContent}>
       <ArrowRight slot="leftIcon" />
       Next
     </Button>

@@ -5,26 +5,34 @@
 
   import Button from '$lib/components/Button.svelte';
   import Section from '$lib/components/Section.svelte';
+  import { journalEntry } from '$lib/stores';
+
+  import type { GeocodingResultType } from '../../types';
 
   export let style = '';
   export let searchedKeyword: string | null = '';
-  export let results: any[] = [];
+  export let results: GeocodingResultType[] = [];
+  export let locationSelected: GeocodingResultType | null = null;
 
   const dispatch = createEventDispatcher();
+
+  const newStyle = `${style} width: 400px;`
 
   // Event Handlers
   const back = () => {
     dispatch('previous');
   };
   const saveLocation = () => {
+    const loc = locationSelected || results[0];
+    journalEntry.set({ latlng: [ loc.lat, loc.lon ], place_id: loc.place_id });
     dispatch('next');
   };
 </script>
 
 <!-- <template> -->
-<Section {style}>
-  {#if results.length === 1}
-    <p>Are you sure you want to save this location?</p>
+<Section style={newStyle}>
+  {#if results.length === 1 || !!locationSelected}
+    <p>Are you sure you want to save this location{`${locationSelected?.formatted ? `: ${locationSelected?.formatted}` : ''}`}?</p>
     <span>
       <Button on:click={back}>
         <Cross2 slot="leftIcon" />
@@ -36,15 +44,11 @@
       </Button>
     </span>
   {:else if results.length > 1}
-    <p>There are {results.length} results for your search, please pick one location and click Yes to save it</p>
+    <p>There are <strong>{results.length}</strong> results for your search, please pick one location</p>
     <span>
       <Button on:click={back}>
-        <Cross2 slot="leftIcon" />
-        No
-      </Button>
-      <Button on:click={saveLocation}>
-        <Check slot="leftIcon" />
-        Yes
+        <ArrowLeft slot="leftIcon" />
+        Back
       </Button>
     </span>
   {:else}

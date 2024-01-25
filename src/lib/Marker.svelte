@@ -19,7 +19,8 @@
 				className: 'map-marker',
 				iconSize: L.point(width, height),
 			});
-			marker = L.marker(latLng, { icon }).addTo(map).on('click', (e) => {
+			marker = L.marker(latLng, { icon }).addTo(map).on('click', () => {
+				map?.flyTo(latLng, 5);
 				dispatch('select');
 			});
 		}

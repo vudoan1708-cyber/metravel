@@ -36,7 +36,7 @@ class JournalDatabase {
     }
     return this.model?.findOne(obj);
   }
-  public async create(obj: JournalModelType | null) {
+  public async create(obj: JournalModelType) {
     if (!this._isConnected) {
       throw new Error('Database not connected!');
     }
@@ -47,8 +47,7 @@ class JournalDatabase {
       throw new Error('latlng property is required in the payload');
     }
     this.model?.create({
-      latlng: obj.latlng,
-      popup: obj.popup,
+      ...obj,
       createdAt: (new Date()).toISOString(),
     });
   }

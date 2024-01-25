@@ -1,4 +1,3 @@
-// import type { LatLngExpression } from 'leaflet';
 import { Schema } from 'mongoose';
 import type { IJournalModel } from '../../types';
 

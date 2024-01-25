@@ -19,7 +19,7 @@
   onMount(() => {
     map = L
       .map(mapElement, {
-        center: [51.505, -0.09],
+        center: [ 0, 0 ],
         zoom: 4,
       })
       .on('zoom', (e) => dispatch('zoom', e))
@@ -32,6 +32,12 @@
       attribution: 'Powered by <a href="https://www.geoapify.com/" target="_blank">Geoapify</a> | © OpenStreetMap <a href="https://www.openstreetmap.org/copyright" target="_blank">contributors</a>',
       maxZoom: 20, id: 'osm-bright'
     }).addTo(map);
+
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition((pos) => {
+			  map?.flyTo([ pos.coords.latitude, pos.coords.longitude ], 10);
+      });
+    }
   });
 
   onDestroy(() => {

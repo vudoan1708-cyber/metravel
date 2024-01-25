@@ -5,8 +5,11 @@
   import ApproveLocation from './stages/ApproveLocation.svelte';
   import PopupContent from './stages/PopupContent.svelte';
 
+  import type { GeocodingResultType } from '../types';
+
   export let searchedKeyword: string | null = '';
-  export let searchedLocations: any[] = [];
+  export let searchedLocations: GeocodingResultType[] = [];
+  export let locationSelected: GeocodingResultType | null = null;
 
   const dispatch = createEventDispatcher();
 
@@ -38,6 +41,7 @@
       props: {
         style: 'pointer-events: auto;',
         searchedKeyword,
+        locationSelected,
         results: searchedLocations,
       },
     },

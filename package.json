@@ -30,6 +30,7 @@
 	"dependencies": {
 		"@svelteuidev/core": "^0.15.4",
 		"axios": "^1.6.5",
+		"cloudinary": "^1.41.3",
 		"leaflet": "^1.9.4",
 		"mongoose": "^8.1.0",
 		"prosemirror-example-setup": "^1.2.2",

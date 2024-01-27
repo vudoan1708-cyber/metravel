@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { Modal } from '@svelteuidev/core';
+  import { Modal, NativeSelect } from '@svelteuidev/core';
 
   import Leaflet from '$lib/Leaflet.svelte';
   import Marker from '$lib/Marker.svelte';
@@ -7,10 +7,11 @@
 
   import NewLocation from '$lib/NewLocation.svelte';
   import type { GeocodingResultType } from '../../types.js';
+  import { invalidateAll } from '$app/navigation';
 
   export let data;
 
-  const markerLocations = data.journalEntry;
+  $: markerLocations = data.journalEntry;
 
   let searchedKeyword: string | null = '';
   let searchedLocations: GeocodingResultType[] = [];
@@ -32,13 +33,31 @@
   };
   const modals: { [key: string]: any } = {};
   let locationId: string = '';
-  const openPopupModal = ({ id, popupContent }: { id: string, popupContent: string | null | undefined }) => {
+  let selectedDate: string;
+  const openPopupModal = ({
+    id,
+    popupContent,
+    popupTitle,
+  }: {
+    id: string,
+    popupContent: { [key: string]: string },
+    popupTitle: string | Date | undefined,
+  }) => {
+    const dates = Object.keys(popupContent);
+    [ selectedDate ] = dates;
     locationId = id;
-    modals[locationId] = popupContent || '';
+    modals[locationId] = {
+      title: popupTitle,
+      content: popupContent || '',
+      travelDates: dates,
+    };
   };
   const onModalClose = (id: string) => {
     locationId = '';
     modals[id] = undefined;
+  };
+  const onSuccessfulSave = async () => {
+    await invalidateAll();
   };
 </script>
 
@@ -51,8 +70,11 @@
         width={40}
         height={40}
         latLng={loc.latlng}
-        on:select={() => { openPopupModal({ id: loc.place_id, popupContent: loc.popup }); }}
-        let:marker>
+        on:select={() => {
+          openPopupModal({
+            id: loc.place_id, popupContent: loc.popup, popupTitle: loc.place_name || loc.createdAt,
+          });
+        }}>
         <svg
 					xmlns="http://www.w3.org/2000/svg"
 					xml:space="preserve"
@@ -102,26 +124,34 @@
     {/each}
   </Leaflet>
 
-  
-
   <Modal
     target={document.body}
     opened={!!modals[locationId]}
+    title={modals[locationId]?.title}
     centered
+    size="lg"
     overflow="inside"
     style="z-index: 10000;"
     closeOnClickOutside
     withinPortal={false}
     on:close={() => { onModalClose(locationId); }}>
-    {@html modals[locationId]}
+    <NativeSelect
+      label="Select a date for the story"
+      style="margin-bottom: 16px;"
+      data={modals[locationId]?.travelDates}
+      bind:value={selectedDate}
+    />
+    {@html modals[locationId]?.content[selectedDate]}
   </Modal>
 
   <NewLocation
     {searchedKeyword}
     {searchedLocations}
     locationSelected={__selectedPlaceholder}
+    storedLocations={markerLocations}
     on:searched={onLocationSearched}
-    on:stageChange={onStageChange} />
+    on:stageChange={onStageChange}
+    on:successful={onSuccessfulSave} />
 </div>
 <!-- </template> -->
 

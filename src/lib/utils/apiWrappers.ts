@@ -24,10 +24,13 @@ export const getFetch = async (
     return res.data || res;
   } catch (err: any) {
     console.error(err);
-    throw new Error(err.message);
+    throw new Error(err.response?.data?.message || err?.message);
   }
 };
 
 export const getGeocodingFromText = (search: string) => getFetch(`${GEOAPIFY_BASEURL}/search?text=${search}&format=json&apiKey=${PUBLIC_GEOAPIFY_API_KEY}`)
 export const getAllJournals = () => getFetch(`${METRAVEL_BASEURL}/api/journals`);
 export const createJournal = (payload: JournalModelType) => getFetch(`${METRAVEL_BASEURL}/api/journal`, 'POST', payload);
+export const updateJournal = (payload: Partial<JournalModelType> & { _id: string }) => (
+  getFetch(`${METRAVEL_BASEURL}/api/journal`, 'PATCH', payload)
+);

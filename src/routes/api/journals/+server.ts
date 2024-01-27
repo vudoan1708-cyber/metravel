@@ -1,7 +1,7 @@
 import { journalDatabase } from '$lib/server/database.server.js';
 import { json, error } from '@sveltejs/kit';
 
-// /api/places GET
+// /api/journals GET
 export const GET = async () => {
   let all = [];
 

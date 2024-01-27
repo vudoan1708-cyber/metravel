@@ -68,6 +68,7 @@
   };
 
   const startImageUpload = (view: EditorView, file: File) => {
+    dispatch('fileUploading');
     // A fresh object to act as the ID for this upload
     let id = {};
 
@@ -89,6 +90,7 @@
         view.dispatch(view.state.tr
                       .replaceWith(pos.from, pos.to, imgNode)
                       .setMeta(placeholderPlugin, { remove: { id } }));
+        dispatch('fileUploaded');
       })
       .catch(() => {
         // On failure, just clean up the placeholder
@@ -102,7 +104,6 @@
       Promise.all(promises);
     }
     window.view.focus();
-    dispatch('fileUpload');
   };
 
   let newSchema: Schema;
@@ -167,6 +168,10 @@
     cursor: text;
   }
 
+  :global(.ProseMirror.ProseMirror-example-setup-style) {
+    max-height: 250px;
+    overflow: auto;
+  }
   :global(.ProseMirror.ProseMirror-example-setup-style.ProseMirror-focused:focus-visible) {
     outline: none;
   }

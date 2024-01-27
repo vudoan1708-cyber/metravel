@@ -3,16 +3,22 @@ import type { Document } from 'mongoose';
 
 export interface IJournalModel extends Document {
   place_id: string;
+  place_name: string;
   latlng: LatLngTuple;
-  popup: string | null | undefined;
+  popup: {
+    [key: string]: string
+  };
   createdAt?: Date;
   updatedAt?: Date;
 }
 
 export type JournalModelType = {
   place_id: string;
+  place_name: string;
   latlng: LatLngTuple;
-  popup: string | null | undefined;
+  popup: {
+    [key: string]: string
+  };
   createdAt?: Date;
   updatedAt?: Date;
 }

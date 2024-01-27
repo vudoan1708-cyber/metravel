@@ -20,7 +20,7 @@
     map = L
       .map(mapElement, {
         center: [ 0, 0 ],
-        zoom: 4,
+        zoom: 1,
       })
       .on('zoom', (e) => dispatch('zoom', e))
       .on('popupopen', async (e) => {

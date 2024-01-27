@@ -1,15 +1,22 @@
 <script lang="ts">
   import { createEventDispatcher } from 'svelte';
 
+  import { Notification } from '@svelteuidev/core';
+
+  import { journalEntry } from '$lib/stores';
+
+  import { Check, Cross2 } from 'radix-icons-svelte';
+
   import Search from './stages/Search.svelte';
   import ApproveLocation from './stages/ApproveLocation.svelte';
   import PopupContent from './stages/PopupContent.svelte';
 
-  import type { GeocodingResultType } from '../types';
+  import type { GeocodingResultType, JournalModelType } from '../types';
 
   export let searchedKeyword: string | null = '';
   export let searchedLocations: GeocodingResultType[] = [];
   export let locationSelected: GeocodingResultType | null = null;
+  export let storedLocations: Array<JournalModelType & { _id: string }> = [];
 
   const dispatch = createEventDispatcher();
 
@@ -49,6 +56,9 @@
       component: PopupContent,
       props: {
         style: 'pointer-events: auto;',
+        duplicatedLocation: storedLocations.find((loc) => (
+          loc.place_id ===  (locationSelected || searchedLocations[0])?.place_id
+        )),
       },
     },
   };
@@ -62,6 +72,16 @@
     currentStage = STAGES[currentStage].previous();
     dispatch('stageChange', currentStage);
   };
+  let successful: boolean = false;
+  const toggleSuccessState = (state: boolean) => {
+    successful = state;
+    if (successful) dispatch('successful');
+  };
+
+  let error: boolean = false;
+  const toggleErrorState = (state: boolean) => {
+    error = state;
+  };
 </script>
 
 <!-- <template> -->
@@ -71,8 +91,31 @@
     {...components[currentStage].props}
     on:next={nextStage}
     on:previous={previousStage}
-    on:searched />
+    on:searched
+    on:successful={() => { toggleSuccessState(true); }}
+    on:error={() => { toggleErrorState(true); }} />
 </div>
+
+{#if successful}
+  <Notification
+    title="Successful"
+    style="position: absolute; top: 0; right: 0; z-index: 2000;"
+    icon={Check}
+    color="teal"
+    on:close={() => { toggleSuccessState(false); }}>
+    Your story on {$journalEntry.place_name} has been successfully saved to the database
+  </Notification>
+{/if}
+{#if error}
+  <Notification
+    title="Failed"
+    style="position: absolute; top: 0; right: 0; z-index: 2000;"
+    icon={Cross2}
+    color="red"
+    on:close={() => { toggleErrorState(false); }}>
+    Internal server error
+  </Notification>
+{/if}
 <!-- </template> -->
 
 <style>

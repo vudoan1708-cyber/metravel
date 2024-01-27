@@ -16,7 +16,7 @@
 
   const dispatch = createEventDispatcher();
 
-  const newStyle = `${style} width: 400px;`
+  const newStyle = `${style} width: 400px;`;
 
   // Event Handlers
   const back = () => {
@@ -24,7 +24,7 @@
   };
   const saveLocation = () => {
     const loc = locationSelected || results[0];
-    journalEntry.set({ latlng: [ loc.lat, loc.lon ], place_id: loc.place_id });
+    journalEntry.set({ latlng: [ loc.lat, loc.lon ], place_id: loc.place_id, place_name: loc.formatted });
     dispatch('next');
   };
 </script>
@@ -32,7 +32,7 @@
 <!-- <template> -->
 <Section style={newStyle}>
   {#if results.length === 1 || !!locationSelected}
-    <p>Are you sure you want to save this location{`${locationSelected?.formatted ? `: ${locationSelected?.formatted}` : ''}`}?</p>
+    <p>Are you sure you want to save this location{`${locationSelected?.formatted ? `: ${locationSelected?.formatted}` : `: ${results[0].formatted}`}`}?</p>
     <span>
       <Button on:click={back}>
         <Cross2 slot="leftIcon" />

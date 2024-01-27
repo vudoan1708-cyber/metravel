@@ -28,13 +28,15 @@ class JournalDatabase {
     if (!this._isConnected) {
       throw new Error('Database not connected!');
     }
-    return this.model?.find({});
+    return await this.model?.find({});
   }
-  public async find(obj: JournalModelType) {
+  public async findByPlaceId(id: string) {
     if (!this._isConnected) {
       throw new Error('Database not connected!');
     }
-    return this.model?.findOne(obj);
+    return await this.model?.findOne({
+      place_id: id,
+    });
   }
   public async create(obj: JournalModelType) {
     if (!this._isConnected) {
@@ -46,9 +48,28 @@ class JournalDatabase {
     if (!obj.latlng) {
       throw new Error('latlng property is required in the payload');
     }
-    this.model?.create({
+    await this.model?.create({
       ...obj,
       createdAt: (new Date()).toISOString(),
+    });
+  }
+  public async update(id: string, updatedPayload: Partial<JournalModelType>) {
+    if (!this._isConnected) {
+      throw new Error('Database not connected!');
+    }
+    if (!id) {
+      throw new Error('id is required');
+    }
+    if (!updatedPayload) {
+      throw new Error('Payload is not present');
+    }
+    await this.model?.findOneAndUpdate({
+      _id: id,
+    }, {
+      $set: {
+        ...updatedPayload,
+        updatedAt: (new Date()).toISOString(),
+      }
     });
   }
 }

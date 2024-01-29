@@ -7,9 +7,8 @@ export const GET = async () => {
 
   try {
     all = await journalDatabase.findAll() || [];
+    return json(all);
   } catch (err: any) {
     error(500, err?.message);
   }
-
-  return json(all);
 };

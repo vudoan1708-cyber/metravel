@@ -90,7 +90,7 @@
         view.dispatch(view.state.tr
                       .replaceWith(pos.from, pos.to, imgNode)
                       .setMeta(placeholderPlugin, { remove: { id } }));
-        dispatch('fileUploaded');
+        dispatch('fileUploaded', file);
       })
       .catch(() => {
         // On failure, just clean up the placeholder

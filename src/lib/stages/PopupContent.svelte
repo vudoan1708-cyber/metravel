@@ -8,10 +8,10 @@
   import TextEditor from '$lib/components/TextEditor.svelte';
 
   import { journalEntry } from '$lib/stores';
-  import { createJournal, updateJournal } from '$lib/utils/apiWrappers';
+  import { createJournal, getPresignedUrlAndUploadFile, updateJournal } from '$lib/utils/apiWrappers';
 
   import { ArrowLeft, ArrowRight } from 'radix-icons-svelte';
-  
+
   import type { LatLngTuple } from 'leaflet';
   import type { JournalModelType } from '../../types';
 
@@ -32,10 +32,19 @@
     saving = true;
     try {
       const div = document.createElement('div');
-      const imgs = editorDom.content?.querySelectorAll('img');
-      imgs?.forEach((img, idx) => {
-        img.src = `#${dateFrom} --> ${dateTo}:${idx}`;
-      });
+      const imgs = Array.from(editorDom.content?.querySelectorAll('img') || []).filter((img) => img.src);
+      let idx: number = 0;
+      for (const img of imgs || []) {
+        const filePath: string = `${$journalEntry.place_id}/${dateFrom} --> ${dateTo}:${idx}`;
+        const formData = new FormData();
+        formData.append('filePath', filePath);
+        formData.append('file', files[idx]);
+        // TODO: Store the image in Cloudflare R2
+        await getPresignedUrlAndUploadFile(formData);
+        // Swap the src content with the image ID that is used to store and retrieve images from Cloudflare R2 to reduce db storage
+        img.src = `#${filePath}`;
+        idx += 1;
+      }
       div.append(...editorDom.content?.childNodes as NodeListOf<ChildNode> || []);
       const res = !!duplicatedLocation
         ? await updateJournal({
@@ -88,11 +97,13 @@
   };
 
   let uploading: boolean = false;
+  const files: File[] = [];
   const uploadingFiles = () => {
     uploading = true;
   };
-  const uploadedFiles = () => {
+  const uploadedFiles = ({ detail }: { detail: File }) => {
     uploading = false;
+    files.push(detail);
   };
 </script>
 

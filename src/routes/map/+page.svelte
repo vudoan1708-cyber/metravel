@@ -1,13 +1,17 @@
 <script lang="ts">
-  import { Modal, NativeSelect } from '@svelteuidev/core';
+  import { Loader, Modal, NativeSelect } from '@svelteuidev/core';
+
+  import { invalidateAll } from '$app/navigation';
 
   import Leaflet from '$lib/Leaflet.svelte';
   import Marker from '$lib/Marker.svelte';
   import Popup from '$lib/Popup.svelte';
 
   import NewLocation from '$lib/NewLocation.svelte';
+
+  import { getFile } from '$lib/utils/apiWrappers.js';
+
   import type { GeocodingResultType } from '../../types.js';
-  import { invalidateAll } from '$app/navigation';
 
   export let data;
 
@@ -34,23 +38,44 @@
   const modals: { [key: string]: any } = {};
   let locationId: string = '';
   let selectedDate: string;
-  const openPopupModal = ({
+  let modalContentLoading: boolean = false;
+  const openPopupModal = async ({
     id,
     popupContent,
     popupTitle,
+    placeId,
   }: {
     id: string,
     popupContent: { [key: string]: string },
     popupTitle: string | Date | undefined,
+    placeId: string,
   }) => {
+    modalContentLoading = true;
     const dates = Object.keys(popupContent);
     [ selectedDate ] = dates;
+
+    for (const d of dates) {
+      const parser = new DOMParser();
+      const dom = parser.parseFromString(popupContent[d], 'text/html');
+  
+      const imgs = Array.from(dom.querySelectorAll('img') || []).filter((img) => !img.classList.contains('ProseMirror-separator'));
+      let idx: number = 0;
+      for (const img of imgs || []) {
+        const { presignedUrl } = await getFile(`${placeId}/${d}:${idx}`) as { presignedUrl: string, objectKey: string };
+        img.src = presignedUrl;
+        idx += 1;
+      }
+  
+      popupContent[d] = dom.body.outerHTML;
+    }
+
     locationId = id;
     modals[locationId] = {
       title: popupTitle,
       content: popupContent || '',
       travelDates: dates,
     };
+    modalContentLoading = false;
   };
   const onModalClose = (id: string) => {
     locationId = '';
@@ -72,7 +97,10 @@
         latLng={loc.latlng}
         on:select={() => {
           openPopupModal({
-            id: loc.place_id, popupContent: loc.popup, popupTitle: loc.place_name || loc.createdAt,
+            id: loc.place_id,
+            popupContent: loc.popup,
+            popupTitle: loc.place_name || loc.createdAt,
+            placeId: loc.place_id,
           });
         }}>
         <svg
@@ -135,13 +163,17 @@
     closeOnClickOutside
     withinPortal={false}
     on:close={() => { onModalClose(locationId); }}>
-    <NativeSelect
-      label="Select a date for the story"
-      style="margin-bottom: 16px;"
-      data={modals[locationId]?.travelDates}
-      bind:value={selectedDate}
-    />
-    {@html modals[locationId]?.content[selectedDate]}
+    {#if modalContentLoading}
+      <Loader size="xl" />
+    {:else}
+      <NativeSelect
+        label="Select a date for the story"
+        style="margin-bottom: 16px;"
+        data={modals[locationId]?.travelDates}
+        bind:value={selectedDate}
+      />
+      {@html modals[locationId]?.content[selectedDate]}
+    {/if}
   </Modal>
 
   <NewLocation

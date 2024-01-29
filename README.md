@@ -9,3 +9,5 @@ This is to speed up development process by using an already available component 
 Icons
 ## [prosemirror](https://prosemirror.net/)
 Text editor with built-in editor state and image uploading
+## [Cloudflare R2](https://developers.cloudflare.com/r2/)
+Media storage

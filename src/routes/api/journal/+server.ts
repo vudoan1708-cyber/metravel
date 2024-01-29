@@ -13,11 +13,10 @@ export const POST = async (event) => {
 
   try {
     await journalDatabase.create(data as unknown as JournalModelType);
-  } catch (err: any) {
+    return json({ success: true });
+} catch (err: any) {
     error(500, err?.message);
   }
-
-  return json({ success: true });
 };
 
 // api/journal PATCH
@@ -26,9 +25,8 @@ export const PATCH = async (event) => {
   const { _id, ...rest } = data;
   try {
     await journalDatabase.update(_id, rest as unknown as Partial<JournalModelType>);
+    return json({ success: true });
   } catch (err: any) {
     error(500, err?.message);
   }
-
-  return json({ success: true });
 };

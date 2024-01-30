@@ -14,6 +14,7 @@
 
   import FileInput from '$lib/components/FileInput.svelte';
   import { createPlaceholder } from '$lib/utils/createPlaceholder';
+  import { uuid } from '$lib/utils/uuid';
 
   export let style = '';
 
@@ -51,7 +52,7 @@
     },
   });
 
-  const uploadFile = (file: File) => {
+  const convertToBase64 = (file: File) => {
     let reader = new FileReader();
     return new Promise((resolve, reject) => {
       reader.onload = () => resolve(reader.result);
@@ -61,7 +62,7 @@
     });
   }
 
-  const findPlaceholder = (state: EditorState, id: {}) => {
+  const findPlaceholder = (state: EditorState, id: string) => {
     let decos = placeholderPlugin.getState(state);
     let found = decos?.find(undefined, undefined, (spec) => spec.id === id);
     return found?.length ? { from: found[0].from, to: found[0].to } : null;
@@ -70,7 +71,7 @@
   const startImageUpload = (view: EditorView, file: File) => {
     dispatch('fileUploading');
     // A fresh object to act as the ID for this upload
-    let id = {};
+    const id = uuid();
 
     // Replace the selection with a placeholder
     let tr = view.state.tr;
@@ -78,7 +79,7 @@
     tr.setMeta(placeholderPlugin, { add: { id, pos: tr.selection.from } });
     view.dispatch(tr);
 
-    uploadFile(file)
+    convertToBase64(file)
       .then((url) => {
         let pos = findPlaceholder(view.state, id);
         // If the content around the placeholder has been deleted, drop
@@ -86,11 +87,11 @@
         if (pos === null) return;
         // Otherwise, insert it at the placeholder's position, and remove
         // the placeholder
-        const imgNode = newSchema.nodes.image.create({ src: url });
+        const imgNode = newSchema.nodes.image.create({ src: url, alt: id });
         view.dispatch(view.state.tr
                       .replaceWith(pos.from, pos.to, imgNode)
                       .setMeta(placeholderPlugin, { remove: { id } }));
-        dispatch('fileUploaded', file);
+        dispatch('fileUploaded', { id: imgNode.attrs.alt, binary: file });
       })
       .catch(() => {
         // On failure, just clean up the placeholder
@@ -98,7 +99,7 @@
       });
   };
 
-  const handleChange = ({ detail: files }: {detail: FileList | null | undefined}) => {
+  const handleChange = ({ detail: files }: { detail: FileList | null | undefined }) => {
     if (window.view.state.selection.$from.parent.inlineContent && files?.length) {
       const promises = Array.from(files).map((file: File) => startImageUpload(window.view, file));
       Promise.all(promises);
@@ -111,7 +112,7 @@
     // Mix the nodes from prosemirror-schema-list into the basic schema to
     // create a schema with list support.
     newSchema = new Schema({
-      nodes: addListNodes(schema.spec.nodes, "paragraph block*", "block"),
+      nodes: addListNodes(schema.spec.nodes, 'paragraph block*', 'block'),
       marks: schema.spec.marks,
     });
 

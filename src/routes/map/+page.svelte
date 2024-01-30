@@ -9,7 +9,7 @@
 
   import NewLocation from '$lib/NewLocation.svelte';
 
-  import { getFile } from '$lib/utils/apiWrappers.js';
+  import { getFileUrl } from '$lib/utils/apiWrappers.js';
 
   import type { GeocodingResultType } from '../../types.js';
 
@@ -38,7 +38,6 @@
   const modals: { [key: string]: any } = {};
   let locationId: string = '';
   let selectedDate: string;
-  let modalContentLoading: boolean = false;
   const openPopupModal = async ({
     id,
     popupContent,
@@ -50,7 +49,6 @@
     popupTitle: string | Date | undefined,
     placeId: string,
   }) => {
-    modalContentLoading = true;
     const dates = Object.keys(popupContent);
     [ selectedDate ] = dates;
 
@@ -59,10 +57,12 @@
       const dom = parser.parseFromString(popupContent[d], 'text/html');
   
       const imgs = Array.from(dom.querySelectorAll('img') || []).filter((img) => !img.classList.contains('ProseMirror-separator'));
+
       let idx: number = 0;
       for (const img of imgs || []) {
-        const { presignedUrl } = await getFile(`${placeId}/${d}:${idx}`) as { presignedUrl: string, objectKey: string };
+        const { presignedUrl } = await getFileUrl(`${placeId}/${d}:${idx}`) as { presignedUrl: string, objectKey: string };
         img.src = presignedUrl;
+        img.loading = 'lazy';
         idx += 1;
       }
   
@@ -75,7 +75,6 @@
       content: popupContent || '',
       travelDates: dates,
     };
-    modalContentLoading = false;
   };
   const onModalClose = (id: string) => {
     locationId = '';
@@ -103,18 +102,11 @@
             placeId: loc.place_id,
           });
         }}>
-        <svg
-					xmlns="http://www.w3.org/2000/svg"
-					xml:space="preserve"
-					style="fill-rule:evenodd;clip-rule:evenodd;stroke-linejoin:round;stroke-miterlimit:2"
-					viewBox="0 0 45 40"
-				>
-					<path
-						d="m23.046 25.449 9.601 16.885H13.253l9.793-16.885ZM45 23.965H25.702l9.575 16.84L45 23.965ZM44.963 20.923 35.339 4.254l-9.668 16.669h19.292ZM32.771 2.618h-4.17L8.522 37.237l2.08 3.603L32.771 2.618ZM25.084 2.618H11.465L0 22.476l6.768 11.722 18.316-31.58Z"
-						style="fill:#e9204f;fill-rule:nonzero"
-						transform="translate(0 -2.618)"
-					/>
-				</svg>
+        <svg width="40" height="45" xmlns="http://www.w3.org/2000/svg">
+          <g>
+           <path stroke="#000" id="svg_1" d="m-2.48022,17.20673l16.63312,0l5.13976,-15.80139l5.13976,15.80139l16.63311,0l-13.45645,9.76568l5.14003,15.80139l-13.45645,-9.76595l-13.45645,9.76595l5.14003,-15.80139l-13.45645,-9.76568z" fill="#ebff0f"/>
+          </g>
+         </svg>
       </Marker>
     {/each}
 
@@ -163,17 +155,13 @@
     closeOnClickOutside
     withinPortal={false}
     on:close={() => { onModalClose(locationId); }}>
-    {#if modalContentLoading}
-      <Loader size="xl" />
-    {:else}
-      <NativeSelect
-        label="Select a date for the story"
-        style="margin-bottom: 16px;"
-        data={modals[locationId]?.travelDates}
-        bind:value={selectedDate}
-      />
-      {@html modals[locationId]?.content[selectedDate]}
-    {/if}
+    <NativeSelect
+      label="Select a date for the story"
+      style="margin-bottom: 16px;"
+      data={modals[locationId]?.travelDates}
+      bind:value={selectedDate}
+    />
+    {@html modals[locationId]?.content[selectedDate]}
   </Modal>
 
   <NewLocation

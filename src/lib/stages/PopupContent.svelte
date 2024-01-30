@@ -32,14 +32,16 @@
     saving = true;
     try {
       const div = document.createElement('div');
-      const imgs = Array.from(editorDom.content?.querySelectorAll('img') || []).filter((img) => img.src);
+      const imgs = Array.from(editorDom.content?.querySelectorAll('img') || []).filter((img) => img.src && !img.classList.contains('ProseMirror-separator'));
       let idx: number = 0;
       for (const img of imgs || []) {
+        if (!files[img.getAttribute('alt') as string]) continue;
+
         const filePath: string = `${$journalEntry.place_id}/${dateFrom} --> ${dateTo}:${idx}`;
         const formData = new FormData();
         formData.append('filePath', filePath);
-        formData.append('file', files[idx]);
-        // TODO: Store the image in Cloudflare R2
+        formData.append('file', files[img.getAttribute('alt') as string]);
+        // Store the image in Cloudflare R2
         await getPresignedUrlAndUploadFile(formData);
         // Swap the src content with the image ID that is used to store and retrieve images from Cloudflare R2 to reduce db storage
         img.src = `#${filePath}`;
@@ -97,13 +99,13 @@
   };
 
   let uploading: boolean = false;
-  const files: File[] = [];
+  const files: { [key: string]: File } = {};
   const uploadingFiles = () => {
     uploading = true;
   };
-  const uploadedFiles = ({ detail }: { detail: File }) => {
+  const uploadedFiles = ({ detail }: { detail: { id: string, binary: File } }) => {
     uploading = false;
-    files.push(detail);
+    files[detail.id] = detail.binary;
   };
 </script>
 

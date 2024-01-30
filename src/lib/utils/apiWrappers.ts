@@ -49,6 +49,6 @@ export const uploadFile = (presignedUrl: string, file: File) => {
     }
   })
 };
-export const getFile = (fileName: string) => (
+export const getFileUrl = (fileName: string) => (
   getFetch(`${METRAVEL_BASEURL}/api/file?name=${fileName}`)
 );

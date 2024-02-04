@@ -1,15 +1,18 @@
 <script lang="ts">
-  import { Loader, Modal, NativeSelect } from '@svelteuidev/core';
+  import { Modal, NativeSelect } from '@svelteuidev/core';
 
   import { invalidateAll } from '$app/navigation';
+  import { page } from '$app/stores';
 
   import Leaflet from '$lib/Leaflet.svelte';
   import Marker from '$lib/Marker.svelte';
   import Popup from '$lib/Popup.svelte';
 
   import NewLocation from '$lib/NewLocation.svelte';
+  import User from '$lib/components/User.svelte';
 
   import { getFileUrl } from '$lib/utils/apiWrappers.js';
+  import { getUserId } from '$lib/utils/getUserId.js';
 
   import type { GeocodingResultType } from '../../types.js';
 
@@ -60,7 +63,7 @@
 
       let idx: number = 0;
       for (const img of imgs || []) {
-        const { presignedUrl } = await getFileUrl(`${placeId}/${d}:${idx}`) as { presignedUrl: string, objectKey: string };
+        const { presignedUrl } = await getFileUrl(`${getUserId($page.data.session?.user)}/${placeId}/${d}:${idx}`) as { presignedUrl: string, objectKey: string };
         img.src = presignedUrl;
         img.loading = 'lazy';
         idx += 1;
@@ -173,6 +176,8 @@
     on:stageChange={onStageChange}
     on:successful={onSuccessfulSave} />
 </div>
+
+<User />
 <!-- </template> -->
 
 <style>

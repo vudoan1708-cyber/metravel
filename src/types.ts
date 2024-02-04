@@ -2,6 +2,7 @@ import type { LatLngTuple } from 'leaflet';
 import type { Document } from 'mongoose';
 
 export interface IJournalModel extends Document {
+  user_id: string;
   place_id: string;
   place_name: string;
   latlng: LatLngTuple;
@@ -13,6 +14,7 @@ export interface IJournalModel extends Document {
 }
 
 export type JournalModelType = {
+  user_id: string;
   place_id: string;
   place_name: string;
   latlng: LatLngTuple;

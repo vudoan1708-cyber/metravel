@@ -40,8 +40,8 @@ export const updateJournal = (payload: Partial<JournalModelType> & { _id: string
 export const getPresignedUrlAndUploadFile = (formData: FormData) => (
   getFetch(`${METRAVEL_BASEURL}/api/file`, 'POST', formData)
 );
-export const uploadFile = (presignedUrl: string, file: File) => {
-  fetch(presignedUrl, {
+export const uploadFile = async (presignedUrl: string, file: File) => {
+  await fetch(presignedUrl, {
     method: 'PUT',
     body: file,
     headers: {

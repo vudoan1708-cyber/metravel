@@ -1,14 +1,17 @@
 <script lang="ts">
   import { createEventDispatcher } from 'svelte';
-
   import { Input } from '@svelteuidev/core';
+
+  import { page } from '$app/stores';
 
   import Section from '$lib/components/Section.svelte';
   import Button from '$lib/components/Button.svelte';
   import TextEditor from '$lib/components/TextEditor.svelte';
 
   import { journalEntry } from '$lib/stores';
+
   import { createJournal, getPresignedUrlAndUploadFile, updateJournal } from '$lib/utils/apiWrappers';
+  import { getUserId } from '$lib/utils/getUserId';
 
   import { ArrowLeft, ArrowRight } from 'radix-icons-svelte';
 
@@ -33,11 +36,13 @@
     try {
       const div = document.createElement('div');
       const imgs = Array.from(editorDom.content?.querySelectorAll('img') || []).filter((img) => img.src && !img.classList.contains('ProseMirror-separator'));
+      const userId = getUserId($page.data.session?.user);
+
       let idx: number = 0;
       for (const img of imgs || []) {
         if (!files[img.getAttribute('alt') as string]) continue;
 
-        const filePath: string = `${$journalEntry.place_id}/${dateFrom} --> ${dateTo}:${idx}`;
+        const filePath: string = `${userId}/${$journalEntry.place_id}/${dateFrom} --> ${dateTo}:${idx}`;
         const formData = new FormData();
         formData.append('filePath', filePath);
         formData.append('file', files[img.getAttribute('alt') as string]);
@@ -57,6 +62,7 @@
           },
         })
         : await createJournal({
+          user_id: userId,
           latlng: $journalEntry.latlng as LatLngTuple,
           popup: {
             [`${dateFrom} --> ${dateTo}`]: div.outerHTML,
